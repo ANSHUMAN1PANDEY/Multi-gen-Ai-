@@ -1,0 +1,91 @@
+import React, { useState } from 'react';
+import { generateText } from '../../api/gemini';
+import '../../styles/toolpages.css';
+
+const EmojiConverter = () => {
+  const [text, setText] = useState('');
+  const [result, setResult] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleGenerate = async () => {
+    if (!text.trim()) return;
+    
+    setIsGenerating(true);
+    setResult('');
+    setError(null);
+
+    const promptText = `Convert the following sentence into a fun emoji style sentence by adding appropriate emojis but keep the original words.\n\nUser text: ${text}`;
+    
+    try {
+      const responseText = await generateText(promptText);
+      setResult(responseText);
+    } catch (err) {
+      setError(err.message || 'Failed to generate emojis. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  return (
+    <div className="tool-page-container animate-fade-in">
+      <div className="tool-header">
+        <h1><span className="gradient-text">✨ AI Emoji Generator</span></h1>
+        <p>Convert your sentence into a fun emoji-filled message instantly.</p>
+      </div>
+
+      <div className="tool-workspace">
+        <div className="tool-panel">
+          <div className="panel-title">Your Text</div>
+          <textarea 
+            className="input-textarea"
+            placeholder="Type a sentence like 'I love coding and I am very happy today'..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          ></textarea>
+          
+          <button 
+            className="btn-primary" 
+            onClick={handleGenerate}
+            disabled={isGenerating || !text.trim()}
+            style={{ opacity: isGenerating ? 0.7 : 1 }}
+          >
+            {isGenerating ? (
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                <div className="spinner"></div> Generating...
+              </span>
+            ) : 'Generate'}
+          </button>
+        </div>
+
+        <div className="tool-panel">
+          <div className="panel-title">Output box</div>
+          <div className="output-area" style={{ justifyContent: result ? 'flex-start' : 'center' }}>
+            {error ? (
+              <div className="output-placeholder" style={{color: '#ef4444'}}>
+                <span style={{ fontSize: '3rem' }}>⚠️</span>
+                <p style={{ textAlign: 'center' }}>{error}</p>
+              </div>
+            ) : isGenerating ? (
+              <div className="output-placeholder">
+                <div className="spinner" style={{ width: '40px', height: '40px', borderColor: 'var(--accent-color)', borderTopColor: 'transparent' }}></div>
+                <p>Generating emojis...</p>
+              </div>
+            ) : result ? (
+              <div className="output-text animate-fade-in" style={{ fontSize: '1.2rem', whiteSpace: 'pre-wrap' }}>
+                {result}
+              </div>
+            ) : (
+              <div className="output-placeholder">
+                <span style={{ fontSize: '3rem' }}>🪄</span>
+                <p>Converted emojis will appear here</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default EmojiConverter;

@@ -1,0 +1,120 @@
+import React, { useState } from 'react';
+import { generateText } from '../../api/gemini';
+import '../../styles/toolpages.css';
+
+const Translator = () => {
+  const [sourceLang, setSourceLang] = useState('English');
+  const [targetLang, setTargetLang] = useState('Spanish');
+  const [text, setText] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [result, setResult] = useState('');
+  const [error, setError] = useState(null);
+
+  const languages = ['English', 'Spanish', 'French', 'German', 'Japanese', 'Chinese'];
+
+  const handleGenerate = async () => {
+    if (!text.trim()) return;
+    
+    setIsGenerating(true);
+    setResult('');
+    setError(null);
+
+    const systemInstruction = `You are a professional translator. Translate the user's text from ${sourceLang} to ${targetLang}. Only return the translated text without additional explanation.`;
+
+    try {
+      const translatedText = await generateText(`Text to translate: ${text}`, systemInstruction);
+      
+      let i = 0;
+      setIsGenerating(false);
+      
+      const interval = setInterval(() => {
+        setResult((prev) => prev + translatedText.charAt(i));
+        i++;
+        if (i >= translatedText.length) clearInterval(interval);
+      }, 15);
+
+    } catch (err) {
+      setError(err.message || 'Failed to translate text');
+      setIsGenerating(false);
+    }
+  };
+
+  return (
+    <div className="tool-page-container animate-fade-in">
+      <div className="tool-header">
+        <h1><span className="gradient-text">🌍 AI Translator</span></h1>
+        <p>Translate text seamlessly between languages with high accuracy.</p>
+      </div>
+
+      <div className="tool-workspace">
+        <div className="tool-panel">
+          <div className="panel-title">
+            Source Language
+            <select 
+              className="input-select" 
+              style={{ width: 'auto', marginBottom: 0, padding: '4px 8px' }}
+              value={sourceLang}
+              onChange={(e) => setSourceLang(e.target.value)}
+            >
+              {languages.map(lang => (
+                <option key={lang} value={lang}>{lang}</option>
+              ))}
+            </select>
+          </div>
+          <textarea 
+            className="input-textarea"
+            placeholder="Enter text to translate..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          ></textarea>
+          
+          <button 
+            className="btn-primary" 
+            onClick={handleGenerate}
+            disabled={isGenerating || !text.trim()}
+            style={{ opacity: isGenerating ? 0.7 : 1 }}
+          >
+            {isGenerating ? (
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                <div className="spinner"></div> Translating...
+              </span>
+            ) : 'Translate Text'}
+          </button>
+        </div>
+
+        <div className="tool-panel">
+          <div className="panel-title">
+            Target Language
+            <select 
+              className="input-select" 
+              style={{ width: 'auto', marginBottom: 0, padding: '4px 8px' }}
+              value={targetLang}
+              onChange={(e) => setTargetLang(e.target.value)}
+            >
+              {languages.map(lang => (
+                <option key={lang} value={lang}>{lang}</option>
+              ))}
+            </select>
+          </div>
+          <div className="output-area" style={{ justifyContent: result || error ? 'flex-start' : 'center' }}>
+            {error ? (
+              <div className="output-placeholder" style={{color: '#ef4444', margin: 'auto'}}>
+                <span style={{ fontSize: '3rem' }}>⚠️</span>
+                <p style={{ textAlign: 'center' }}>{error}</p>
+              </div>
+            ) : result ? (
+              <div className="output-text">{result}</div>
+            ) : (
+              <div className="output-placeholder">
+                <span style={{ fontSize: '3rem' }}>A/文</span>
+                <p>Translation will appear here</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Translator;
