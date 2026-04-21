@@ -47,6 +47,9 @@ export const generateText = async (prompt, systemInstruction = null) => {
     });
 
     if (!response.ok) {
+      if (response.status === 503) {
+        throw new Error("Server is busy. Please try again later.");
+      }
       const errorData = await response.json().catch(() => ({}));
       console.error("Gemini API Error details:", errorData);
       throw new Error(`API Error: ${response.status} ${response.statusText}`);
@@ -63,6 +66,10 @@ export const generateText = async (prompt, systemInstruction = null) => {
     }
     
   } catch (error) {
+    if (error.message === "Failed to fetch" || error.message.includes("Network Error")) {
+      console.error("Network connectivity issue:", error);
+      throw new Error("Server is busy. Please try again later.");
+    }
     console.error("Error in generateText:", error);
     throw error;
   }

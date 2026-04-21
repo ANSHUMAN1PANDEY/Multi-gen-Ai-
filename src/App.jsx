@@ -9,6 +9,7 @@ import Tools from './pages/Tools.jsx';
 import Pricing from './pages/Pricing.jsx';
 import Login from './pages/Login.jsx';
 import Signup from './pages/Signup.jsx';
+import Contact from './pages/Contact.jsx';
 
 // Dashboard Tool Pages
 import DashboardOverview from './pages/Dashboard.jsx';
@@ -17,6 +18,10 @@ import TextSummarizer from './pages/tools/TextSummarizer.jsx';
 import Translator from './pages/tools/Translator.jsx';
 import ChatBot from './pages/tools/ChatBot.jsx';
 import AIWriter from './pages/tools/AIWriter.jsx';
+import EmailGenerator from './pages/tools/EmailGenerator.jsx';
+import CodeExplainer from './pages/tools/CodeExplainer.jsx';
+import GrammarCorrector from './pages/tools/GrammarCorrector.jsx';
+import UsernameGenerator from './pages/tools/UsernameGenerator.jsx';
 
 function App() {
   return (
@@ -32,6 +37,7 @@ function App() {
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/contact" element={<Contact />} />
 
             {/* Dashboard Sub-routes */}
             <Route path="/dashboard" element={<DashboardLayout />}>
@@ -41,6 +47,10 @@ function App() {
               <Route path="translator" element={<Translator />} />
               <Route path="chatbot" element={<ChatBot />} />
               <Route path="ai-writer" element={<AIWriter />} />
+              <Route path="email-generator" element={<EmailGenerator />} />
+              <Route path="code-explainer" element={<CodeExplainer />} />
+              <Route path="grammar-corrector" element={<GrammarCorrector />} />
+              <Route path="username-generator" element={<UsernameGenerator />} />
             </Route>
           </Routes>
         </main>

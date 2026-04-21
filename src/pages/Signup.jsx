@@ -25,6 +25,7 @@ const Signup = () => {
       localStorage.setItem('multiGenAiUser', JSON.stringify(userData));
       localStorage.setItem('isAuthenticated', 'true');
       
+      window.dispatchEvent(new Event('authChange'));
       navigate('/dashboard');
     }
   };
@@ -48,7 +49,7 @@ const Signup = () => {
             <label>Full Name</label>
             <input 
               type="text" 
-              className="input-textarea auth-input" 
+              className="auth-input input-field" 
               placeholder="John Doe"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -59,7 +60,7 @@ const Signup = () => {
             <label>Email Address</label>
             <input 
               type="email" 
-              className="input-textarea auth-input" 
+              className="auth-input input-field" 
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -70,7 +71,7 @@ const Signup = () => {
             <label>Password</label>
             <input 
               type="password" 
-              className="input-textarea auth-input" 
+              className="auth-input input-field" 
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

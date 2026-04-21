@@ -9,7 +9,10 @@ const EmojiConverter = () => {
   const [error, setError] = useState(null);
 
   const handleGenerate = async () => {
-    if (!text.trim()) return;
+    if (!text.trim()) {
+      alert("Please provide the text you want to convert.");
+      return;
+    }
     
     setIsGenerating(true);
     setResult('');
@@ -21,6 +24,9 @@ const EmojiConverter = () => {
       const responseText = await generateText(promptText);
       setResult(responseText);
     } catch (err) {
+      if (err.message && err.message.includes("Server is busy")) {
+        setResult("Server 🖥️ is currently ⏱️ busy 🔥. (Fallback Demo)");
+      }
       setError(err.message || 'Failed to generate emojis. Please try again.');
     } finally {
       setIsGenerating(false);
@@ -59,12 +65,40 @@ const EmojiConverter = () => {
         </div>
 
         <div className="tool-panel">
-          <div className="panel-title">Output box</div>
-          <div className="output-area" style={{ justifyContent: result ? 'flex-start' : 'center' }}>
+          <div className="panel-title">
+            Output box
+            {(result || error) && (
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button 
+                  className="btn-secondary" 
+                  style={{ padding: '4px 12px', fontSize: '0.8rem' }}
+                  onClick={handleGenerate}
+                  disabled={isGenerating}
+                >
+                  Retry
+                </button>
+                {result && (
+                  <button 
+                    className="btn-secondary" 
+                    style={{ padding: '4px 12px', fontSize: '0.8rem' }}
+                    onClick={() => navigator.clipboard.writeText(result)}
+                  >
+                    Copy Output
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="output-area">
             {error ? (
               <div className="output-placeholder" style={{color: '#ef4444'}}>
                 <span style={{ fontSize: '3rem' }}>⚠️</span>
-                <p style={{ textAlign: 'center' }}>{error}</p>
+                <p style={{ textAlign: 'center', marginBottom: '1rem' }}>{error}</p>
+                {result && (
+                  <div className="output-text animate-fade-in" style={{ color: 'var(--text-primary)', textAlign: 'left', whiteSpace: 'pre-wrap', lineHeight: '1.6', background: 'rgba(0,0,0,0.2)', padding: '15px', borderRadius: '8px', width: '100%' }}>
+                    {result}
+                  </div>
+                )}
               </div>
             ) : isGenerating ? (
               <div className="output-placeholder">

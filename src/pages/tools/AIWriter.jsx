@@ -9,7 +9,10 @@ const AIWriter = () => {
   const [error, setError] = useState(null);
 
   const handleGenerate = async () => {
-    if (!topic.trim()) return;
+    if (!topic.trim()) {
+      alert("Please provide a topic.");
+      return;
+    }
     
     setIsGenerating(true);
     setResult('');
@@ -21,6 +24,9 @@ const AIWriter = () => {
       const responseText = await generateText(`Write a comprehensive article about: ${topic}`, systemInstruction);
       setResult(responseText);
     } catch (err) {
+      if (err.message && err.message.includes("Server is busy")) {
+        setResult("Title: The Future of " + topic + "\n\n(Fallback Demo Content)\n\nArtificial Intelligence is rapidly evolving, bringing unprecedented changes to how we live and work. Although the server is currently under maintenance, AI continues to shape our technological future.");
+      }
       setError(err.message || 'Failed to generate text. Please try again.');
     } finally {
       setIsGenerating(false);
@@ -63,21 +69,38 @@ const AIWriter = () => {
         <div className="tool-panel">
           <div className="panel-title">
             Generated Content
-            {result && (
-              <button 
-                className="btn-secondary" 
-                style={{ padding: '4px 12px', fontSize: '0.8rem' }}
-                onClick={() => navigator.clipboard.writeText(result)}
-              >
-                Copy Text
-              </button>
+            {(result || error) && (
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button 
+                  className="btn-secondary" 
+                  style={{ padding: '4px 12px', fontSize: '0.8rem' }}
+                  onClick={handleGenerate}
+                  disabled={isGenerating}
+                >
+                  Retry
+                </button>
+                {result && (
+                  <button 
+                    className="btn-secondary" 
+                    style={{ padding: '4px 12px', fontSize: '0.8rem' }}
+                    onClick={() => navigator.clipboard.writeText(result)}
+                  >
+                    Copy Output
+                  </button>
+                )}
+              </div>
             )}
           </div>
           <div className="output-area">
             {error ? (
               <div className="output-placeholder" style={{color: '#ef4444'}}>
                 <span style={{ fontSize: '3rem' }}>⚠️</span>
-                <p style={{ textAlign: 'center' }}>{error}</p>
+                <p style={{ textAlign: 'center', marginBottom: '1rem' }}>{error}</p>
+                {result && (
+                  <div className="output-text animate-fade-in" style={{ color: 'var(--text-primary)', textAlign: 'left', whiteSpace: 'pre-wrap', lineHeight: '1.6', background: 'rgba(0,0,0,0.2)', padding: '15px', borderRadius: '8px', width: '100%' }}>
+                    {result}
+                  </div>
+                )}
               </div>
             ) : isGenerating ? (
               <div className="output-placeholder">

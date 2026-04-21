@@ -19,7 +19,10 @@ const ChatBot = () => {
   }, [messages, isTyping]);
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim()) {
+      alert("Please type a message.");
+      return;
+    }
 
     const userMessage = { role: 'user', content: input };
     const newMessages = [...messages, userMessage];
@@ -57,11 +60,19 @@ const ChatBot = () => {
       setMessages(prev => [...prev, { role: 'ai', content: aiResponse }]);
 
     } catch (err) {
-      setMessages(prev => [...prev, { 
-        role: 'ai', 
-        content: `⚠️ Error connecting to AI model: ${err.message}`, 
-        isError: true 
-      }]);
+      if (err.message && err.message.includes("Server is busy")) {
+        setMessages(prev => [...prev, { 
+          role: 'ai', 
+          content: "(Fallback Demo) The server is currently too busy to process my thoughts. Did you know AI is fascinating anyway? Please try again later.", 
+          isError: false 
+        }]);
+      } else {
+        setMessages(prev => [...prev, { 
+          role: 'ai', 
+          content: `⚠️ Error connecting to AI model: ${err.message}`, 
+          isError: true 
+        }]);
+      }
     } finally {
       setIsTyping(false);
     }

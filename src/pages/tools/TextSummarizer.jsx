@@ -9,7 +9,10 @@ const TextSummarizer = () => {
   const [error, setError] = useState(null);
 
   const handleGenerate = async () => {
-    if (!text.trim()) return;
+    if (!text.trim()) {
+      alert("Please provide some text to summarize.");
+      return;
+    }
     
     setIsGenerating(true);
     setResult('');
@@ -31,6 +34,9 @@ const TextSummarizer = () => {
       }, 15);
 
     } catch (err) {
+      if (err.message && err.message.includes("Server is busy")) {
+        setResult("• This is a fallback summary.\n• The server is currently too busy to read your long text.\n• Please try again later!");
+      }
       setError(err.message || 'Failed to generate summary');
       setIsGenerating(false);
     }
@@ -68,12 +74,40 @@ const TextSummarizer = () => {
         </div>
 
         <div className="tool-panel">
-          <div className="panel-title">Summary Output</div>
-          <div className="output-area" style={{ justifyContent: result || error ? 'flex-start' : 'center' }}>
+          <div className="panel-title">
+            Summary Output
+            {(result || error) && (
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button 
+                  className="btn-secondary" 
+                  style={{ padding: '4px 12px', fontSize: '0.8rem' }}
+                  onClick={handleGenerate}
+                  disabled={isGenerating}
+                >
+                  Retry
+                </button>
+                {result && (
+                  <button 
+                    className="btn-secondary" 
+                    style={{ padding: '4px 12px', fontSize: '0.8rem' }}
+                    onClick={() => navigator.clipboard.writeText(result)}
+                  >
+                    Copy Output
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="output-area">
             {error ? (
               <div className="output-placeholder" style={{color: '#ef4444', margin: 'auto'}}>
                 <span style={{ fontSize: '3rem' }}>⚠️</span>
-                <p style={{ textAlign: 'center' }}>{error}</p>
+                <p style={{ textAlign: 'center', marginBottom: '1rem' }}>{error}</p>
+                {result && (
+                  <div className="output-text animate-fade-in" style={{ color: 'var(--text-primary)', textAlign: 'left', whiteSpace: 'pre-wrap', lineHeight: '1.6', background: 'rgba(0,0,0,0.2)', padding: '15px', borderRadius: '8px', width: '100%' }}>
+                    {result}
+                  </div>
+                )}
               </div>
             ) : result ? (
               <div className="output-text">{result}</div>

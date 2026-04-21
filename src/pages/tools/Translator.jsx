@@ -13,7 +13,10 @@ const Translator = () => {
   const languages = ['English', 'Spanish', 'French', 'German', 'Japanese', 'Chinese'];
 
   const handleGenerate = async () => {
-    if (!text.trim()) return;
+    if (!text.trim()) {
+      alert("Please enter text to translate.");
+      return;
+    }
     
     setIsGenerating(true);
     setResult('');
@@ -34,6 +37,9 @@ const Translator = () => {
       }, 15);
 
     } catch (err) {
+      if (err.message && err.message.includes("Server is busy")) {
+        setResult(`(Fallback Demo) Translation to ${targetLang} is currently unavailable due to high server load.`);
+      }
       setError(err.message || 'Failed to translate text');
       setIsGenerating(false);
     }
@@ -95,12 +101,38 @@ const Translator = () => {
                 <option key={lang} value={lang}>{lang}</option>
               ))}
             </select>
+            {(result || error) && (
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button 
+                  className="btn-secondary" 
+                  style={{ padding: '4px 12px', fontSize: '0.8rem' }}
+                  onClick={handleGenerate}
+                  disabled={isGenerating}
+                >
+                  Retry
+                </button>
+                {result && (
+                  <button 
+                    className="btn-secondary" 
+                    style={{ padding: '4px 12px', fontSize: '0.8rem' }}
+                    onClick={() => navigator.clipboard.writeText(result)}
+                  >
+                    Copy Output
+                  </button>
+                )}
+              </div>
+            )}
           </div>
-          <div className="output-area" style={{ justifyContent: result || error ? 'flex-start' : 'center' }}>
+          <div className="output-area">
             {error ? (
               <div className="output-placeholder" style={{color: '#ef4444', margin: 'auto'}}>
                 <span style={{ fontSize: '3rem' }}>⚠️</span>
-                <p style={{ textAlign: 'center' }}>{error}</p>
+                <p style={{ textAlign: 'center', marginBottom: '1rem' }}>{error}</p>
+                {result && (
+                  <div className="output-text animate-fade-in" style={{ color: 'var(--text-primary)', textAlign: 'left', whiteSpace: 'pre-wrap', lineHeight: '1.6', background: 'rgba(0,0,0,0.2)', padding: '15px', borderRadius: '8px', width: '100%' }}>
+                    {result}
+                  </div>
+                )}
               </div>
             ) : result ? (
               <div className="output-text">{result}</div>
